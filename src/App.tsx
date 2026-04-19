@@ -2,7 +2,7 @@ import { validateConfig } from "./config/env.validator";
 import "./styles.css";
 const environment = import.meta.env.VITE_PUBLIC_ENVIRONMENT || "local";
 const version = import.meta.env.VITE_PUBLIC_VERSION || "dev-local";
-const development_secret = import.meta.env.DB_PASSWORD || "inexistente";
+const development_secret = import.meta.env.VITE_DB_PASSWORD || "inexistente";
 const notes = [
 "Pipeline de calidad activo",
 "Promoción controlada de develop a staging",
