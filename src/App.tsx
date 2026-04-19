@@ -1,13 +1,18 @@
+import { validateConfig } from "./config/env.validator";
 import "./styles.css";
 const environment = import.meta.env.VITE_PUBLIC_ENVIRONMENT || "local";
 const version = import.meta.env.VITE_PUBLIC_VERSION || "dev-local";
+const development_secret = import.meta.env.DB_PASSWORD || "inexistente";
 const notes = [
 "Pipeline de calidad activo",
 "Promoción controlada de develop a staging",
 "Despliegue de staging en GitHub Pages",
-"Cambio visible desde develop"
+"Cambio visible desde develop",
+"Secreto de deployment :" + development_secret
 ];
 export default function App() {
+    validateConfig();
+
 return (
 <main className="shell">
 <section className="hero">
