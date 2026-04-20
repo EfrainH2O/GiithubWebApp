@@ -1,4 +1,4 @@
-import { validateConfig } from "./config/env.validator";
+
 import "./styles.css";
 const environment = import.meta.env.VITE_PUBLIC_ENVIRONMENT || "local";
 const version = import.meta.env.VITE_PUBLIC_VERSION || "dev-local";
@@ -11,7 +11,6 @@ const notes = [
 "Secreto de deployment :" + development_secret
 ];
 export default function App() {
-    validateConfig();
 
 return (
 <main className="shell">
