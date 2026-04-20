@@ -82,9 +82,9 @@ jobs:
           VITE_PUBLIC_ENVIRONMENT: staging
           VITE_PUBLIC_VERSION: ${{ github.sha }}
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-          DB_PASSWORD: ${{ secrets.VITE_DB_PASSWORD }}
-          API_KEY: ${{ secrets.VITE_API_KEY }}
-          JWT_SECRET: ${{ secrets.VITE_JWT_SECRET }}
+          VITE_DB_PASSWORD: ${{ secrets.VITE_DB_PASSWORD }}
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+          VITE_JWT_SECRET: ${{ secrets.VITE_JWT_SECRET }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
