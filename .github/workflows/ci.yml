@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  build:
+    name: Build con variables simuladas
+    runs-on: ubuntu-latest
+    env:
+      SIM_PORT: '3000'
+      SIM_NODE_ENV: 'production'
+      SIM_JWT_SECRET: 'ci-simulated-secret-not-for-production'
+      SIM_FEATURE_X_ENABLED: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Crear .env con valores simulados
+        run: |
+          cat > .env <<EOF
+          PORT=${SIM_PORT}
+          NODE_ENV=${SIM_NODE_ENV}
+          JWT_SECRET=${SIM_JWT_SECRET}
+          FEATURE_X_ENABLED=${SIM_FEATURE_X_ENABLED}
+          EOF
+
+      - name: Build (dispara validación de configuración de Fase 4)
+        run: npm run build
+
+      - name: Verificar que se generó dist/
+        run: test -d dist && test -f dist/index.html
+
+  config-validation-negative:
+    name: La validación debe fallar sin variables
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Crear .env vacío (caso negativo)
+        run: |
+          cat > .env <<EOF
+          PORT=
+          NODE_ENV=
+          JWT_SECRET=
+          FEATURE_X_ENABLED=
+          EOF
+
+      - name: El build debe abortar con mensaje claro
+        run: |
+          if npx vite build; then
+            echo "::error::vite build debía fallar con .env vacío, pero terminó con éxito"
+            exit 1
+          else
+            echo "OK: la validación detectó las variables faltantes y abortó el build"
+          fi
+
+  gitleaks:
+    name: Escaneo de secretos (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
